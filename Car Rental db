@@ -1,0 +1,30 @@
+3.
+a. Display both the firstname and last name in uppercase as Name of the customer as column name.
+SQL> select upper(first_name) || ' '||upper(last_name) as "Name of the customers" from carcustomer;
+b. Display vehicles size which is having maximum mileage.
+SQL> select vsize from vehicle where mileage = (select max(mileage) from vehicle);
+c. Find location and total mileage of all vehicles specific to each respective location.
+SQL> select location, sum(mileage) from vehicle group by location;
+d. Find average mileage of vehicles for each location, which has at least five vehicles.
+SQL> select avg(mileage),count(vid),location from vehicle group by location having count(vid) >= 5;
+e. Display the customer names whose reservation start date is before 18 Feb 2012.
+SQL>select c.first_name,c.last_name from reservation r, carcustomer c where c.cid=r.cid and r.start_date< '18-FEB-2012';
+f. Display the vehicles which has been reserved between the dates Nov 5th 2015 and Jan 16th 2016
+SQL> select vid from reservation where start_date >= ‘5-JAN-2011’ AND end_date <= ‘1-JAN-2014’;
+g. Display the names of the customers whose lastname starts with ‘D’ and who has reserved more vehicles than the customer with CID as 101.
+SQL> select c.first_name from carcustomer c where c.last_name like ‘D%’
+and c.cid in ( select cid from reservation group by cid having count(*) 
+> (select count(*) from reservation where cid ='101'));
+h. Retrieve the customers who have reserved vehicles from all the locations.
+SQL> select c.cid from carcustomer c
+where not exists ((select distinct(location) from vehicle)
+minus
+(select v.location from vehicle v, reservation r where v.vid=r.vid and c.cid=r.cid));
+i. Retrieve the locations that have at least one vehicle with manual transmission that 
+has lower mileage than any luxury vehicle at that location.
+SQL>select * from vehicle v1 where v1.vsize not in (‘luxury’) and v1.transmission=’manual’
+and v1.mileage<
+(select min(mileage) from vehicle v2 where v2.vsize=’luxury’ and v1.location=v2.location);
+j. Delete all the reservations for customer whose last name starts with ‘S’ or only S.
+SQL> delete from reservation where cid in (select cid from carcustomer where last_name like 
+'S%');
