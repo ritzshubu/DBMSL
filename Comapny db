@@ -1,0 +1,36 @@
+2.
+a. Retrieve the names of the Employees who works on all the projects controlled by dept no 3 
+SQL> select name from Employee where not exists ((select pnumber from project where dnum = 3)
+MINUS(select pno from workson where essn = ssn));
+b. Retrieve the names of the Employees who gets second highest salary.
+SQL>select name from Employee where salary in (select max(salary) from Employee 
+                                  where salary < (select max(salary) from Employee));
+d. List the names of all Employees who have at least two dependents
+SQL> select name from Employee where ( select count (*) from Dependent where ssn =Essn )>=2;
+e. Retrieve the number of Employees and their average salary working in each department. 
+SQL> select dno, count (*),avg(salary) from Employee group by dno;
+f. Retrieve the highest salary paid in each department in descending order. 
+SQL> select dno,max(salary) from Employee group by dno order by max(salary) desc;
+g. Retrieve the SSN of all Employees who work on atleast one of the project numbers 1, 2, 3.
+SQL> select distinct(essn) from workson where pno in (‘p01’,’p02’,’p03’);
+h. Retrieve the number of dependents for an Employee named RAM.
+SQL> select count(*) from Dependent where essn = (select ssn from Employee where name='Ram');
+i. Retrieve the names of the managers working in location named xyz who has no 
+female dependents.
+SQL> select name from Employee where ssn in ( select essn from dependent where sex!='F' 
+ and essn in((select mgr_ssn from department where dnumber in (select dnumber from dept_location where 
+dlocation='Blore'))));
+j. Retrieve the names of the Employees who works in the same department as that of RAM
+SQL>select name from Employee where dno = (select dno from Employee where name='Ram') and name!='Ram';
+k. Retrieve the name of the Employees whose salary is greater than the salary of all the Employees working in department 3.
+SQL> select name, salary from Employee where salary> all ( select salary from Employee where dno=3 );
+l. Retrieve the names of the Employees who work for dept no 3 and have a daughter as dependent.
+SQL>select name from Employee e , dependent d where e.ssn=d.essn and d.relationship='daughter' and e.dno=3;
+m. Retrieve the Employee name who paid highest salary from each department.
+SQL>select name from Employee where salary in(select max(salary) from Employee group by dno ) ;
+n. Retrieve the names of the Employees who are paid the same salary as that of Anil.
+SQL> select name from Employee where salary in (select salary from Employee where name='Anil')and name!=’Anil’;
+o. Retrieve the total the number of Employees in the ‘Research’ department.
+SQL>select count (*) from Employee, Department where dno =dnumber and dname=‘Research’;
+p. For each project, retrieve the project number, the project name, and the number of Employees who work on that project.
+SQL>select Pnumber, Pname, count (*) from Project, Workson where Pnumber=Pno GROUP BY Pnumber, Pname;
