@@ -6,56 +6,59 @@ b. Retrieve cities in which customers or agents located.
  SQL> select city from customer
               union
       select city from agent;
-c. List product ids which have been ordered by agents from the cities “Dargeling” or  “Srinagar”. 
+ c. List the names of the customers and agent who placed an order through that agent. 
+ SQL>        select distinct cname, aname                       
+                   from customer, orders, agent                                             
+                            where customer.cid = orders.cid and                                            
+                                     orders.aid = agent.aid;
+ d. Retrieve customer ids with smaller discounts than every customer from " Srinagar” 
+ SQL>     select cid from customer                                               
+ where discount < all (select discount from customer where city = ’Srinagar’);
+ e. Retrieve agent ids either from "NewDelhi" or "Srinagar" who place orders for
+  ALL products priced over fifteen rupee.  
+ SQL>        select a.aid from agent a                            
+                    where (a.city in (’NewDelhi’,’Srinagar’)) and
+                          not exists (select p.pid from product p where p.price > 15.00
+                            and
+                              not exists (select * from orders o
+                                 where o.pid = p.pid and o.aid = a.aid));  
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Q) List product ids which have been ordered by agents from the cities “Dargeling” or  “Srinagar”. 
  SQL>        select  distinct(o.pid) from orders o ,agent a  where  o.aid=a.aid and a.city in( ’Darjeling’,’Srinagar’);
-d. Retrieve customer ids whose discounts are less than the maximum discount. 
+Q) Retrieve customer ids whose discounts are less than the maximum discount. 
  SQL>      select cid from customer where discount < (  select max(discount)  from customer); 
-e.Retrieve product ids ordered by at least two customers. 
+Q) Retrieve product ids ordered by at least two customers. 
  SQL> select p.pid from product p where 2 < = (select count(distinct cid) from orders where pid = p.pid);
- f. For each (aid,pid) pair get the sum of the orders aid has placed for pid. 
+Q) For each (aid,pid) pair get the sum of the orders aid has placed for pid. 
 SQL>              select pid, aid, sum(qty) TOTAL
                               from orders
                                     group by pid, aid;
-g. Retrieve product ids and total quantity ordered for each product when the total exceeds 1000. 
+Q) Retrieve product ids and total quantity ordered for each product when the total exceeds 1000. 
   SQL>        select pid, aid, sum(qty) TOTAL from orders group by pid, aid having sum(qty) > 1000; 
-h. List the names of the customers and agent who placed an order through that agent. 
- SQL>        select distinct cname, aname                       
- from customer, orders, agent                                             
- where customer.cid = orders.cid and                                            
- orders.aid = agent.aid; 
- i. Retrieve the order numbers placed by customers in "Dargeling" through agents in "NewDelhi".
+ 
+Q) Retrieve the order numbers placed by customers in "Dargeling" through agents in "NewDelhi".
  SQL> select ordno from orders where cid in (select cid  from customer where city =’Darjeling’) and
  aid in (select aid from agent where city = ’NewDelhi’);
- j. Retrieve names of the customers who have the same discount as that of any (one) of the
+Q) Retrieve names of the customers who have the same discount as that of any (one) of the
  customers in "Dargeling" or "Bangalore". 
   SQL>              select cname from customer                                   
   where discount =any (select discount from customer where city = ’Darjeling’ or city = ’Bangalore’); 
- k. Retrieve customer ids with smaller discounts than every customer from " Srinagar” 
- SQL>     select cid from customer                                               
- where discount < all (select discount from customer where city = ’Srinagar’); 
- l. Retrieve names of the customers who have placed an order through agent "a05"   (using exists ) 
+  
+Q) Retrieve names of the customers who have placed an order through agent "a05"   (using exists ) 
  SQL>                select c.cname from customer c                                           
  where exists (select * from orders o                                                                             
  where c.cid = o.cid and o.aid = ’a05’); 
- m. Retrieve names of the customers who do not place orders through agent "a05".    (using not exists) 
+Q) Retrieve names of the customers who do not place orders through agent "a05".    (using not exists) 
  SQL>                    select cname from customer                                         
  where cid not in  (select cid from orders where orders.aid = 'a05');
- n. Retrieve customer ids whose orders placed through all the agents in "New Delhi".
+Q) Retrieve customer ids whose orders placed through all the agents in "New Delhi".
  Get cid values of customers such that (the set of agents from " NewDelhi " through
  whom the customer has NOT placed an order) is EMPTY. 
  SQL>        select c.cid  from customer c           
  where not exists  (select * from agent a where a.city = ’NewDelhi’  and                                             
  not exists   (select * from orders o where o.cid=c.cid and o.aid=a.aid));
-  o. Retrieve agent ids either from "NewDelhi" or "Srinagar" who place orders for
-  ALL products priced over fifteen rupee. Get aid values of agents from "New York" or "Duluth"
-  such that (the set of products priced over one dollar that the agent has NOT ordered) is EMPTY.   
- SQL>        select a.aid from agent a                            
-                            where (a.city in (’NewDelhi’,’Srinagar’)) and
-                            not exists (select p.pid from product p where p.price > 15.00
-                            and
-                            not exists (select * from orders o
-                            where o.pid = p.pid and o.aid = a.aid)); 
- p.Retrieve names and ids of the customers and agents along with total sales for that pair.
+
+Q) Retrieve names and ids of the customers and agents along with total sales for that pair.
  Order the result from largest to smallest total sales. Also retain only those pairs for which
  total rupee sales is at least 9000.00. 
  SQL>     select c.cname, c.cid, a.aname, a.aid, sum(o.ordamount)
